@@ -57,7 +57,7 @@ def statistik(pnls):
     avg_verlust = avg_verlust_temp / az_verlierer  if az_verlierer > 0 else None
     winrate = (winner / az_trades ) * 100  
 
-    profit_faktor = avg_gewinn_temp / abs(avg_verlust_temp)  if avg_verlust_temp > 0 else None
+    profit_faktor = avg_gewinn_temp / abs(avg_verlust_temp) 
 
 
     return {"gesamt": pnl, "anzahl": az_trades, "winrate": winrate, "gewinner": winner, "verlierer": az_verlierer,
