@@ -1,5 +1,5 @@
-async function ladeTrades() {
-    const antwort = await fetch("/api/trades");
+async function ladeTrades(ticker) {
+    const antwort = await fetch(mitFilter("/api/trades", ticker));
     if (!antwort.ok) {
         throw new Error('Server meldet ${antwort.status}');
     }
@@ -8,14 +8,36 @@ async function ladeTrades() {
 
 }
 
-async function ladeStatistik() {
-    const antwort = await fetch("/api/stats")
+async function ladeStatistik(ticker) {
+    const antwort = await fetch(mitFilter("/api/stats", ticker));
     if (!antwort.ok) {
         throw new Error(`Server meldet ${antwort.status}`);
     }
     const stats = await antwort.json();
     return stats;
 
+}
+
+
+async function ladeSetups(ticker) {
+    const antwort = await fetch(mitFilter("/api/setups", ticker));
+    if (!antwort.ok) {
+        throw new Error(`Server meldet ${antwort.status}`);
+    }
+    const setups = await antwort.json();
+    return setups;
+
+}
+
+
+async function ladeEquity(ticker) {
+    const antwort = await fetch(mitFilter("/api/equity", ticker));
+    if (!antwort.ok) {
+        const info = await antwort.json();
+        throw new Error(info.fehler);
+    }
+    const punkte = await antwort.json();
+    return punkte
 }
 
 
@@ -79,13 +101,29 @@ function statsKarte(stats) {
     const AnzGesamtPnl = document.querySelector("#gesamt-pnl");
     const tabelleGesamtPnl = document.querySelector("#summe");
     const AnzWinrate = document.querySelector("#winrate");
+    const AnzTrades = document.querySelector("#gesamt-trades");
+    const gewinner = document.querySelector("#winner");
+    const verlierer = document.querySelector("#verlierer");
+    const avgGewinn = document.querySelector("#avg-w");
+    const avgVerlust = document.querySelector("#avg-l");
+    const GroessterW = document.querySelector("#gg");
+    const GroessterL = document.querySelector("#gl");
+    const profitFaktor = document.querySelector("#pf");
     const versteckKnopf = document.querySelector("#verstecken");
-    const karte = document.querySelector(".inhaltKarte2")
+    const karte = document.querySelector("#inhaltKarte2")
 
 
 
     AnzGesamtPnl.textContent = `${stats.gesamt.toFixed(2)} $`;
     AnzWinrate.textContent = `${stats.winrate.toFixed(2)} %`;
+    AnzTrades.textContent = `${stats.anzahl} `;
+    gewinner.textContent = ` ${stats.gewinner}`;
+    verlierer.textContent = `${stats.verlierer} `;
+    avgGewinn.textContent = ` ${stats.avg_gewinn} $`;
+    avgVerlust.textContent = `${stats.avg_verlust} $`;
+    GroessterL.textContent = `${stats.groesster_verlust.toFixed(2)} $`;
+    GroessterW.textContent = `${stats.groesster_gewinn.toFixed(2)} $`;
+    profitFaktor.textContent = `x ${stats.profit_faktor.toFixed(2)} `;
 
 
     tabelleGesamtPnl.textContent = `${stats.gesamt.toFixed(2)} $`;
@@ -122,14 +160,16 @@ function statsKarte(stats) {
 
 
 
-async function start() {
+async function start(ticker) {
     try {
-        const trades = await ladeTrades();
-        const stats = await ladeStatistik();
-        const equity = await ladeEquity();
+        const trades = await ladeTrades(ticker);
+        const stats = await ladeStatistik(ticker);
+        const equity = await ladeEquity(ticker);
+        const setups = await ladeSetups(ticker);
         tabelleZeichnen(trades);
         statsKarte(stats);
         diagrammZeichnen(equity);
+        statTabelle(setups);
     } catch (fehler) {
         const fehlerFeld = document.querySelector("#fehler");
         fehlerFeld.textContent = "Trades konnten nicht geladen werden.";
@@ -161,7 +201,7 @@ formular.addEventListener("submit", async function (event) {
 
     try {
         await speichereTrades(neuerTrade);
-        await start();
+        await start(filter.value);
         formular.reset();
     }
     catch (fehler) {
@@ -201,15 +241,7 @@ async function speichereTrades(neuerTrade) {
 
 let diagramm = null;
 
-async function ladeEquity() {
-    const antwort = await fetch("/api/equity");
-    if (!antwort.ok) {
-        const info = await antwort.json();
-        throw new Error(info.fehler);
-    }
-    const punkte = await antwort.json();
-    return punkte
-}
+
 
 
 function diagrammZeichnen(punkte) {
@@ -224,12 +256,76 @@ function diagrammZeichnen(punkte) {
         type: "line",
         data: {
             labels: punkte.map((p) => p.datum),
-            datasets: [{ label: "Equity", data: punkte.map((p) => p.equity) }],
+            datasets: [{
+                label: "Equity",
+                data: punkte.map((p) => p.equity),
+                borderColor: "#FD91CC",
+                backgroundColor: "rgba(214, 9, 122, 0.2)",
+                fill: true,
+                tension: 0.1,
+            }],
+        },
+        options: {
+            scales: {
+                x: { ticks: { color: "white" } },
+                y: { ticks: { color: "white" } },
+            },
+            plugins: { legend: { labels: { color: "white" } } },
         },
     });
+}
+
+
+
+function statTabelle(setups) {
+    const list = document.querySelector("#setup-liste");
+    list.replaceChildren();
+    for (const t of setups) {
+
+
+        const zeile = document.createElement("tr");
+
+
+
+
+        zeile.append(zelleBauen(t.setup));
+        zeile.append(zelleBauen(t.anzahl));
+        const pnlZelle = zelleBauen(`${t.pnl.toFixed(2)} $`);
+
+
+
+        pnlZelle.classList.remove("gewinn", "verlust")
+
+        if (t.pnl > 0) {
+            pnlZelle.classList.add("gewinn");
+        }
+        else {
+            pnlZelle.classList.add("verlust");
+
+        }
+        zeile.append(pnlZelle);
+        zeile.append(zelleBauen(t.winrate));
+        list.append(zeile);
+
+        zeile.addEventListener("click", function (event) {
+            zeile.classList.toggle("markiert");
+
+        });
+    }
+}
+
+function mitFilter(pfad, ticker) {
+    if (!ticker) {
+        return pfad
+    }
+    return `${pfad}?ticker=${ticker}`;
 
 
 }
 
 
+const filter = document.querySelector("#ticker-filter");
+filter.addEventListener("change", function () {
+    start(filter.value);
+});
 

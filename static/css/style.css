@@ -83,11 +83,17 @@ td a {
 
 }
 
+#tabelle {
+    margin: 5rem;
+
+}
+
 /* ===== 4. Komponenten ===== */
 
 form div {
     margin-bottom: 4px;
     display: flex;
+    flex-wrap: wrap;
     font-weight: bold;
     gap: 10px;
 
@@ -158,9 +164,9 @@ td {
 }
 
 .karte2 {
-    padding: 1rem 2rem 0 2rem;
+    padding: 1rem 1.5em 1rem 1.5rem;
     margin: 2rem 2rem;
-    width: 30rem;
+    width: 10rem;
     background-color: #FD91CC;
     border: 1px solid #cbd5e1;
     border-radius: 20px;
@@ -230,9 +236,20 @@ td {
 }
 
 
+.ticker-filter {
+    margin: 2rem;
+
+}
+
 
 
 footer {
     color: #252a2c;
     font-size: 0.7rem;
+}
+
+.kpi-raster {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 1rem;
 }

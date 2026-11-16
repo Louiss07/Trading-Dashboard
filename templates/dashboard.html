@@ -8,21 +8,69 @@
 
 <p id="fehler" class="verlust versteckt"></p>
 {% if fehler %}<p class="verlust">{{ fehler }}</p>{% endif %}
-<section id="statistik">
-    <button id="verstecken" class="verstecktButton">Statistik Verstecken</button>
+
+
+
+<section class="ticker-filter">
+
+    <h2> Ticker Filter:</h2>
+
+    <select id="ticker-filter">
+        <option value="">Alle</option>
+        <option value="MNQ">MNQ</option>
+        <option value="MES">MES</option>
+        <option value="SPY">SPY</option>
+
+
+    </select>
+
+</section>
+
+
+
+<button id="verstecken" class="verstecktButton">Statistik Verstecken</button>
+<section class="kpi-raster" id="inhaltKarte2">
+
+
+
 
     <div class="karte2">
-        <div class="inhaltKarte2">
-            <p>Gesamt-P&amp;L: <span id="gesamt-pnl">–</span></p>
-            <p>Winrate: <span id="winrate">–</span></p>
-        </div>
+        <p>Gesamt-P&amp;L: <span id="gesamt-pnl">–</span></p>
+        <p>Winrate: <span id="winrate">–</span></p>
+    </div>
+
+    <div class="karte2">
+        <p>Anz Trades <span id="gesamt-trades">–</span></p>
+        <p>Gewinner <span id="winner">–</span></p>
+        <p>Verlierer <span id="verlierer">–</span></p>
+    </div>
+
+
+    <div class="karte2">
+        <p>Avg. Gewinn <span id="avg-w"> –</span></p>
+        <p>Avg. Verlust <span id="avg-l"> –</span></p>
+
+    </div>
+
+    <div class="karte2">
+        <p>Größter-W <span id="gg">–</span></p>
+        <p>Größter-L <span id="gl">–</span></p>
+    </div>
+
+    <div class="karte2">
+        <p>profit faktor <span id="pf">–</span></p>
     </div>
 </section>
 
 
+
+
 <canvas id="equity-chart"></canvas>
 
-<section>
+
+
+
+<section id="tabelle">
 
     <table>
         <thead>
@@ -53,7 +101,7 @@
 
 </section>
 
-<section>
+<section id="tabelle">
 
     <h2>Neuer Trade eintragen</h2>
 
@@ -113,6 +161,36 @@
 
 
 
+
+
+
+
+</section>
+
+<section id="tabelle">
+    <table>
+        <thead>
+            <tr>
+                <th>Setup</th>
+                <th>Anzahl</th>
+                <th>P&amp;L</th>
+                <th>Winrate</th>
+            </tr>
+        </thead>
+        <tbody id="setup-liste">
+
+        </tbody>
+        <tfoot>
+
+
+        </tfoot>
+
+
+
+
+
+
+    </table>
 
 
 

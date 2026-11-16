@@ -108,7 +108,7 @@ def pruefe_trade(daten):
     try:
         datum = datetime.strptime(daten['datum'], "%Y-%m-%d").strftime("%d.%m.%Y")
         ticker = daten['ticker']
-        setup = daten['setup']
+        setup = daten['setup'].strip()
         richtung = daten['richtung']
         einstieg = float(daten['einstieg'])
         ausstieg = float(daten['ausstieg'])
@@ -126,6 +126,9 @@ def pruefe_trade(daten):
     
     if ticker not in PUNKTWERTE:
         raise ValueError("Kein Erlaubter Ticker")
+
+    if setup not in daten['setup']:
+        raise ValueError("Kein Erlaubtes Setup")
 
     pnl = berechne_pnl(ticker, richtung, einstieg, ausstieg, groesse)
     trade = {"datum":datum, "ticker":ticker, "setup": setup, "richtung": richtung,"pnl": pnl}
